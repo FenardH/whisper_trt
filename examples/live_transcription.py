@@ -33,7 +33,7 @@ from whisper_trt.model import load_trt_model
 
 
 def find_respeaker_audio_device_index():
-
+    device_index = 1
     p = pyaudio.PyAudio()
 
     info = p.get_host_api_info_by_index(0)

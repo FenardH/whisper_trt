@@ -19,6 +19,9 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../')
 
 import torch
 import os
@@ -29,9 +32,10 @@ from whisper_trt import load_trt_model
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("model", type=str, choices=["tiny.en", "base.en", "small.en"])
-    parser.add_argument("audio", type=str)
-    parser.add_argument("--backend", type=str, choices=["whisper", "whisper_trt", "faster_whisper"], default="whisper_trt")
+    parser.add_argument("--model", default="small", type=str, choices=["tiny", "base", "small", "medium", ])
+    parser.add_argument("--language", default="en", type=str, choices=["en", "fr", "nl", "de"])
+    parser.add_argument("--audio", type=str)
+    parser.add_argument("--backend", default="whisper_trt", type=str, choices=["whisper", "whisper_trt", "faster_whisper"])
     args = parser.parse_args()
 
     if args.backend == "whisper":
@@ -46,7 +50,7 @@ if __name__ == "__main__":
 
         from whisper_trt import load_trt_model
 
-        model = load_trt_model(args.model)
+        model = load_trt_model(args.model, args.language)
 
         result = model.transcribe(args.audio)
 
@@ -63,5 +67,6 @@ if __name__ == "__main__":
 
     else:
         raise RuntimeError("Unsupported backend.")
-    
-    print(f"Result: {result['text']}")
+
+    result = result['text'].replace("<|transcribe|><|notimestamps|> ", '')
+    print(f"Result: {result}")
